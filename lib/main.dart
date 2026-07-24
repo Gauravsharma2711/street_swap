@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'screens/feed_screen.dart';
+import 'theme.dart';
 
 void main() {
   runApp(const StreetSwapApp());
@@ -13,11 +14,9 @@ class StreetSwapApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'StreetSwap',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepOrange),
-        useMaterial3: true,
-      ),
+      theme: appTheme,
       home: const FeedScreen(),
+      debugShowCheckedModeBanner: false,
     );
   }
 }

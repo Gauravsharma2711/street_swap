@@ -31,7 +31,9 @@ class SharedPrefsListingRepository implements ListingRepository {
           .map((item) => Listing.fromJson(item as Map<String, dynamic>))
           .toList();
     } catch (_) {
-      return <Listing>[];
+      final freshSeedData = getSeedListings();
+      await _saveListings(prefs, freshSeedData);
+      return freshSeedData;
     }
   }
 
@@ -80,8 +82,7 @@ class SharedPrefsListingRepository implements ListingRepository {
 
   Future<void> _saveListings(
       SharedPreferences prefs, List<Listing> listings) async {
-    final jsonString =
-        jsonEncode(listings.map((l) => l.toJson()).toList());
+    final jsonString = jsonEncode(listings.map((l) => l.toJson()).toList());
     await prefs.setString(_storageKey, jsonString);
   }
 }
