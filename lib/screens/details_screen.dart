@@ -183,22 +183,27 @@ class _DetailsScreenState extends State<DetailsScreen> {
                       child: SizedBox(
                         width: double.infinity,
                         height: 52,
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: mongoDarkGreen,
-                            foregroundColor: Colors.white,
-                            elevation: 0,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
+                        child: Semantics(
+                          label: 'Mark listing as ${status.name}',
+                          button: true,
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: mongoDarkGreen,
+                              foregroundColor: Colors.white,
+                              minimumSize: const Size(double.infinity, 52),
+                              elevation: 0,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
                             ),
-                          ),
-                          onPressed: () => _updateStatus(status),
-                          child: Text(
-                            'MARK AS ${status.name.toUpperCase()}',
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 15,
-                              letterSpacing: 1.1,
+                            onPressed: () => _updateStatus(status),
+                            child: Text(
+                              'MARK AS ${status.name.toUpperCase()}',
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 15,
+                                letterSpacing: 1.1,
+                              ),
                             ),
                           ),
                         ),

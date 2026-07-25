@@ -8,12 +8,14 @@ class ListingCard extends StatelessWidget {
   final Listing listing;
   final VoidCallback? onSelect;
   final VoidCallback? onDismissedCallback;
+  final VoidCallback? onStatusChanged;
 
   const ListingCard({
     super.key,
     required this.listing,
     this.onSelect,
     this.onDismissedCallback,
+    this.onStatusChanged,
   });
 
   IconData _getCategoryIcon(Category category) {
@@ -45,7 +47,7 @@ class ListingCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final semanticLabel =
-        '${listing.title}, ${listing.category.name} in ${listing.area}. Status: ${listing.status.name}.';
+        '${listing.title}, category ${listing.category.name} in ${listing.area}. Status: ${listing.status.name}.';
 
     final (statusBg, statusFg) = _getStatusColors(listing.status);
 
@@ -81,6 +83,7 @@ class ListingCard extends StatelessWidget {
       },
       child: Semantics(
         label: semanticLabel,
+        button: true,
         child: GestureDetector(
           onTap: onSelect,
           child: Hero(
@@ -136,23 +139,60 @@ class ListingCard extends StatelessWidget {
                         ),
                       ),
                     ),
-                    trailing: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: statusBg,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Text(
-                        listing.status.name,
-                        style: TextStyle(
-                          color: statusFg,
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Semantics(
+                          label: 'Save listing',
+                          button: true,
+                          enabled: listing.status == ListingStatus.open,
+                          child: IconButton(
+                            constraints: const BoxConstraints(
+                              minWidth: 48,
+                              minHeight: 48,
+                            ),
+                            tooltip: 'Save listing',
+                            icon: Icon(
+                              listing.status == ListingStatus.saved
+                                  ? Icons.bookmark
+                                  : Icons.bookmark_border,
+                              color: listing.status == ListingStatus.open
+                                  ? mongoDarkGreen
+                                  : (listing.status == ListingStatus.saved
+                                      ? mongoDarkGreen
+                                      : mongoMutedSlate.withValues(alpha: 0.4)),
+                            ),
+                            onPressed: listing.status == ListingStatus.open
+                                ? () async {
+                                    final repo = SharedPrefsListingRepository();
+                                    await repo.updateStatus(
+                                      listing.id,
+                                      ListingStatus.saved,
+                                    );
+                                    onStatusChanged?.call();
+                                  }
+                                : null,
+                          ),
                         ),
-                      ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: statusBg,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Text(
+                            listing.status.name,
+                            style: TextStyle(
+                              color: statusFg,
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),

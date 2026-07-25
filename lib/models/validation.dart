@@ -20,6 +20,8 @@ List<String> validateNewListing({
 
   if (area.trim().isEmpty) {
     errors.add('Area cannot be empty');
+  } else if (RegExp(r'\d').hasMatch(area)) {
+    errors.add('Please use a general area, not a street number');
   }
 
   return errors;

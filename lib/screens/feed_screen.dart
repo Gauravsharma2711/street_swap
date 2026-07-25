@@ -134,17 +134,22 @@ class _FeedScreenState extends State<FeedScreen> {
       appBar: AppBar(
         title: const Text('StreetSwap'),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.settings),
-            tooltip: 'Settings',
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => const SettingsScreen(),
-                ),
-              ).then((_) => _refreshListings());
-            },
+          Semantics(
+            label: 'Settings',
+            button: true,
+            child: IconButton(
+              constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
+              icon: const Icon(Icons.settings),
+              tooltip: 'Settings',
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const SettingsScreen(),
+                  ),
+                ).then((_) => _refreshListings());
+              },
+            ),
           ),
         ],
       ),
@@ -241,6 +246,9 @@ class _FeedScreenState extends State<FeedScreen> {
                       onDismissedCallback: () {
                         _refreshListings();
                       },
+                      onStatusChanged: () {
+                        _refreshListings();
+                      },
                     ),
                   );
                 }
@@ -260,19 +268,23 @@ class _FeedScreenState extends State<FeedScreen> {
           );
         },
       ),
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: mongoDarkGreen,
-        foregroundColor: Colors.white,
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) => const CreateScreen(),
-            ),
-          ).then((_) => _refreshListings());
-        },
-        tooltip: 'Add listing',
-        child: const Icon(Icons.add, size: 28),
+      floatingActionButton: Semantics(
+        label: 'Add listing',
+        button: true,
+        child: FloatingActionButton(
+          backgroundColor: mongoDarkGreen,
+          foregroundColor: Colors.white,
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => const CreateScreen(),
+              ),
+            ).then((_) => _refreshListings());
+          },
+          tooltip: 'Add listing',
+          child: const Icon(Icons.add, size: 28),
+        ),
       ),
     );
   }

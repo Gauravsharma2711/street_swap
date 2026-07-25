@@ -22,6 +22,9 @@ class _CreateScreenState extends State<CreateScreen> {
   ContactPreference? _selectedContactPreference;
   bool _isSuggesting = false;
 
+  // OFFLINE VERIFICATION: RuleBasedAiService works 100% locally on-device without network/cloud dependencies.
+  // To test offline AI behavior: enable Airplane Mode (or disable Wi-Fi/cellular data on Android emulator/device),
+  // enter a title (e.g. "Calculus Study Guide") and tap "Suggest details" to verify category suggestion and description generation.
   final RuleBasedAiService _aiService = RuleBasedAiService();
   final SharedPrefsListingRepository _repository =
       SharedPrefsListingRepository();
@@ -73,10 +76,18 @@ class _CreateScreenState extends State<CreateScreen> {
     }
   }
 
-  InputDecoration _buildInputDecoration(String labelText) {
+  InputDecoration _buildInputDecoration(String labelText, {String? helperText}) {
     return InputDecoration(
       labelText: labelText,
+      helperText: helperText,
+      helperStyle: const TextStyle(color: mongoMutedSlate),
       labelStyle: const TextStyle(color: mongoMutedSlate),
+      errorStyle: TextStyle(
+        color: Colors.red.shade700,
+        fontSize: 13,
+        fontWeight: FontWeight.bold,
+      ),
+      errorMaxLines: 2,
       filled: true,
       fillColor: Colors.white,
       border: OutlineInputBorder(
@@ -93,11 +104,11 @@ class _CreateScreenState extends State<CreateScreen> {
       ),
       errorBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: Colors.redAccent, width: 1),
+        borderSide: BorderSide(color: Colors.red.shade700, width: 1.5),
       ),
       focusedErrorBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: Colors.redAccent, width: 2),
+        borderSide: BorderSide(color: Colors.red.shade700, width: 2),
       ),
     );
   }
@@ -148,29 +159,34 @@ class _CreateScreenState extends State<CreateScreen> {
               const SizedBox(height: 10),
               Align(
                 alignment: Alignment.centerLeft,
-                child: OutlinedButton.icon(
-                  style: OutlinedButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    foregroundColor: mongoDarkGreen,
-                    side: const BorderSide(color: mongoDarkGreen, width: 1.5),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
+                child: Semantics(
+                  label: 'Suggest details with AI',
+                  button: true,
+                  child: OutlinedButton.icon(
+                    style: OutlinedButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      foregroundColor: mongoDarkGreen,
+                      minimumSize: const Size(48, 48),
+                      side: const BorderSide(color: mongoDarkGreen, width: 1.5),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
                     ),
-                  ),
-                  onPressed: _isSuggesting ? null : _handleSuggestDetails,
-                  icon: _isSuggesting
-                      ? const SizedBox(
-                          width: 14,
-                          height: 14,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: mongoDarkGreen,
-                          ),
-                        )
-                      : const Text('✨'),
-                  label: Text(
-                    _isSuggesting ? 'Generating...' : 'Suggest details',
-                    style: const TextStyle(fontWeight: FontWeight.bold),
+                    onPressed: _isSuggesting ? null : _handleSuggestDetails,
+                    icon: _isSuggesting
+                        ? const SizedBox(
+                            width: 14,
+                            height: 14,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: mongoDarkGreen,
+                            ),
+                          )
+                        : const Text('✨'),
+                    label: Text(
+                      _isSuggesting ? 'Generating...' : 'Suggest details',
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
                   ),
                 ),
               ),
@@ -178,12 +194,16 @@ class _CreateScreenState extends State<CreateScreen> {
               TextFormField(
                 controller: _areaController,
                 decoration: _buildInputDecoration(
-                  'Neighborhood or area (not your exact address)',
+                  'Neighborhood or area',
+                  helperText: 'Do not enter your exact home address',
                 ),
                 style: const TextStyle(color: mongoDarkSlate),
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
                     return 'Area cannot be empty';
+                  }
+                  if (RegExp(r'\d').hasMatch(value)) {
+                    return 'Please use a general area, not a street number';
                   }
                   return null;
                 },
@@ -241,22 +261,27 @@ class _CreateScreenState extends State<CreateScreen> {
               SizedBox(
                 width: double.infinity,
                 height: 52,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: mongoDarkGreen,
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                child: Semantics(
+                  label: 'Create listing',
+                  button: true,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: mongoDarkGreen,
+                      foregroundColor: Colors.white,
+                      minimumSize: const Size(double.infinity, 52),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      elevation: 0,
                     ),
-                    elevation: 0,
-                  ),
-                  onPressed: _submitForm,
-                  child: const Text(
-                    'CREATE LISTING',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                      letterSpacing: 1.1,
+                    onPressed: _submitForm,
+                    child: const Text(
+                      'CREATE LISTING',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                        letterSpacing: 1.1,
+                      ),
                     ),
                   ),
                 ),
